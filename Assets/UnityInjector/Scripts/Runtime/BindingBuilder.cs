@@ -9,6 +9,7 @@ namespace Osiris.DI
         private Type _contractType;
         private Type _concreteType;
         private Func<object> _factory;
+        private bool _ownsInstance = true;
 
         internal BindingBuilder(DiContainer container)
         {
@@ -33,6 +34,7 @@ namespace Osiris.DI
         public BindingBuilder<TContract> FromInstance(TContract instance)
         {
             _factory = () => instance;
+            _ownsInstance = false;
             return this;
         }
 
@@ -68,7 +70,8 @@ namespace Osiris.DI
             _container.AddBinding(_contractType, new Binding
             {
                 Factory = _factory ?? (() => _container.Create(_concreteType)),
-                Lifetime = lifetime
+                Lifetime = lifetime,
+                OwnsInstance = _ownsInstance
             });
         }
     }

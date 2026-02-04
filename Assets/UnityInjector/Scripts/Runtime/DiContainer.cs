@@ -5,9 +5,10 @@ using System.Reflection;
 
 namespace Osiris.DI
 {
-    public class DiContainer
+    public class DiContainer : IDisposable
     {
         private readonly Dictionary<Type, Binding> _bindings = new Dictionary<Type, Binding>();
+        private bool _isDisposed;
 
         public BindingBuilder<T> Bind<T>()
         {
@@ -101,6 +102,21 @@ namespace Osiris.DI
 
                 method.Invoke(instance, args);
             }
+        }
+
+        public void Dispose()
+        {
+            if (_isDisposed)
+                return;
+
+            _isDisposed = true;
+
+            foreach (var binding in _bindings.Values)
+            {
+                binding.Dispose();
+            }
+
+            _bindings.Clear();
         }
     }
 }

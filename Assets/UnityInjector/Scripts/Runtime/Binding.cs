@@ -2,10 +2,11 @@ using System;
 
 namespace Osiris.DI
 {
-    internal class Binding
+    internal class Binding : IDisposable
     {
         public Func<object> Factory;
         public LifeTime Lifetime;
+        public bool OwnsInstance = true;
 
         private object _cachedInstance;
 
@@ -24,6 +25,17 @@ namespace Osiris.DI
 
                 default:
                     throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public void Dispose()
+        {
+            if (!OwnsInstance)
+                return;
+
+            if (_cachedInstance is IDisposable disposable)
+            {
+                disposable.Dispose();
             }
         }
     }
