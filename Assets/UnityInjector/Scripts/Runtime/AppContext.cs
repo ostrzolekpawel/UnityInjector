@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Osiris.DI
 {
+    [DefaultExecutionOrder(-5100)]
     public sealed class AppContext : MonoBehaviour
     {
         [SerializeField] private List<MonoInstaller> _installers;
