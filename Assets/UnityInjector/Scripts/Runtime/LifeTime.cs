@@ -1,8 +1,6 @@
-using System.Threading.Tasks;
-
 namespace Osiris.DI
 {
-    public enum LifeTime
+    public enum Lifetime
     {
         Transient,
         Cached,

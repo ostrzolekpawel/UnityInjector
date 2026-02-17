@@ -1,4 +1,3 @@
-using System.Linq;
 using UnityEngine;
 
 namespace Osiris.DI
@@ -12,19 +11,10 @@ namespace Osiris.DI
 
         protected void Inject()
         {
-            var context = GetComponentInParent<IContext>();
-
-            // var scene = gameObject.scene;
-            // var context = scene
-            //     .GetRootGameObjects()
-            //     .SelectMany(go => go.GetComponentsInChildren<IContext>(true))
-            //     .FirstOrDefault();
+            var context = ContextRegistry.GetContext(gameObject.scene);
 
             if (context == null)
             {
-                // Debug.LogError(
-                //     $"No Context found in scene {scene.name} for {GetType().Name}");
-
                 Debug.LogError(
                     $"No Context found in scene for {GetType().Name}");
                 return;

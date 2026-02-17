@@ -46,20 +46,20 @@ namespace Osiris.DI
 
         public void AsTransient()
         {
-            Register(LifeTime.Transient);
+            Register(Lifetime.Transient);
         }
 
         public void AsCached()
         {
-            Register(LifeTime.Cached);
+            Register(Lifetime.Cached);
         }
 
         public void AsSingle()
         {
-            Register(LifeTime.Single);
+            Register(Lifetime.Single);
         }
 
-        private void Register(LifeTime lifetime)
+        private void Register(Lifetime lifetime)
         {
             if (_contractType.IsInterface && _concreteType == _contractType)
             {

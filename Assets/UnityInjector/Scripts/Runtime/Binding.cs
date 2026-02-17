@@ -5,7 +5,7 @@ namespace Osiris.DI
     internal class Binding : IDisposable
     {
         public Func<object> Factory;
-        public LifeTime Lifetime;
+        public Lifetime Lifetime;
         public bool OwnsInstance = true;
 
         private object _cachedInstance;
@@ -14,13 +14,13 @@ namespace Osiris.DI
         {
             switch (Lifetime)
             {
-                case LifeTime.Transient:
+                case Lifetime.Transient:
                     return Factory();
 
-                case LifeTime.Cached:
+                case Lifetime.Cached:
                     return _cachedInstance ??= Factory();
 
-                case LifeTime.Single:
+                case Lifetime.Single:
                     return _cachedInstance ??= Factory();
 
                 default:

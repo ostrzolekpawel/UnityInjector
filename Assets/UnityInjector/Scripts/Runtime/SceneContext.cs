@@ -13,6 +13,8 @@ namespace Osiris.DI
         {
             Container = new DiContainer(AppContext.Container);
             Install(Container);
+
+            ContextRegistry.Register(this, gameObject.scene);
         }
 
         public void Install(DiContainer diContainer)
@@ -23,16 +25,7 @@ namespace Osiris.DI
         private void OnDestroy()
         {
             Container.Dispose();
+            ContextRegistry.Unregister(gameObject.scene);
         }
-    }
-
-    public interface IInstaller
-    {
-        void Install(DiContainer container);
-    }
-
-    public interface IContext
-    {
-        DiContainer Container { get; }
     }
 }
