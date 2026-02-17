@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 namespace Osiris.DI
@@ -6,14 +7,30 @@ namespace Osiris.DI
     {
         protected virtual void Awake()
         {
-            if (DI.Container == null)
+            Inject();
+        }
+
+        protected void Inject()
+        {
+            var context = GetComponentInParent<IContext>();
+
+            // var scene = gameObject.scene;
+            // var context = scene
+            //     .GetRootGameObjects()
+            //     .SelectMany(go => go.GetComponentsInChildren<IContext>(true))
+            //     .FirstOrDefault();
+
+            if (context == null)
             {
+                // Debug.LogError(
+                //     $"No Context found in scene {scene.name} for {GetType().Name}");
+
                 Debug.LogError(
-                    $"{GetType().Name} was created before DI container was ready");
+                    $"No Context found in scene for {GetType().Name}");
                 return;
             }
 
-            DI.Container.Inject(this);
+            context.Container.Inject(this);
         }
     }
 }

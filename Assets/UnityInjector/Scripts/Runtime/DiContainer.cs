@@ -8,7 +8,13 @@ namespace Osiris.DI
     public class DiContainer : IDisposable
     {
         private readonly Dictionary<Type, Binding> _bindings = new Dictionary<Type, Binding>();
+        private readonly DiContainer _fallback;
         private bool _isDisposed;
+
+        public DiContainer(DiContainer parent = null)
+        {
+            _fallback = parent;
+        }
 
         public BindingBuilder<T> Bind<T>()
         {
@@ -28,9 +34,10 @@ namespace Osiris.DI
         public object Resolve(Type type)
         {
             if (_bindings.TryGetValue(type, out var binding))
-            {
                 return binding.GetInstance();
-            }
+
+            if (_fallback != null)
+                return _fallback.Resolve(type);
 
             return Create(type);
         }
