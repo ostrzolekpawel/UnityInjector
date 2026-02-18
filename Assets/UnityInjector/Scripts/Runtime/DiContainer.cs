@@ -31,31 +31,60 @@ namespace Osiris.DI
             return (T)Resolve(typeof(T));
         }
 
-        public object Resolve(Type type)
+        public object Resolve(Type type, params object[] args)
         {
             if (_bindings.TryGetValue(type, out var binding))
-                return binding.GetInstance();
+                return binding.GetInstance(args);
 
             if (_fallback != null)
                 return _fallback.Resolve(type);
 
-            return Create(type);
+            return Create(type, args);
         }
 
-        internal object Create(Type type)
+        internal object Create(Type type, object[] explicitArgs = null)
         {
             var ctor = SelectConstructor(type);
-            var args = ctor.GetParameters()
-                           .Select(p => Resolve(p.ParameterType))
-                           .ToArray();
+            var parameters = ctor.GetParameters();
 
-            var instance = ctor.Invoke(args);
+            var resolvedArgs = new object[parameters.Length];
+
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                var paramType = parameters[i].ParameterType;
+
+                var explicitMatch = FindExplicitArgument(paramType, explicitArgs);
+                if (explicitMatch.found)
+                {
+                    resolvedArgs[i] = explicitMatch.value;
+                    continue;
+                }
+
+                resolvedArgs[i] = Resolve(paramType);
+            }
+
+            var instance = ctor.Invoke(resolvedArgs);
 
             InjectMembers(instance);
             InjectMethods(instance);
 
             return instance;
         }
+
+        private (bool found, object value) FindExplicitArgument(Type paramType, object[] explicitArgs)
+        {
+            if (explicitArgs == null)
+                return (false, null);
+
+            foreach (var arg in explicitArgs)
+            {
+                if (arg != null && paramType.IsAssignableFrom(arg.GetType()))
+                    return (true, arg);
+            }
+
+            return (false, null);
+        }
+
 
         private ConstructorInfo SelectConstructor(Type type)
         {

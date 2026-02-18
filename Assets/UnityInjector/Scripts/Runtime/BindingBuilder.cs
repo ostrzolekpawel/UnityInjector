@@ -8,7 +8,8 @@ namespace Osiris.DI
 
         private Type _contractType;
         private Type _concreteType;
-        private Func<object> _factory;
+        private Func<object[], object> _factory;
+        private object[] _bindingArgs;
         private bool _ownsInstance = true;
 
         internal BindingBuilder(DiContainer container)
@@ -16,6 +17,12 @@ namespace Osiris.DI
             _container = container;
             _contractType = typeof(TContract);
             _concreteType = typeof(TContract);
+        }
+
+        public BindingBuilder<TContract> WithArguments(params object[] args)
+        {
+            _bindingArgs = args;
+            return this;
         }
 
         public BindingBuilder<TContract> To<TConcrete>()
@@ -27,20 +34,20 @@ namespace Osiris.DI
 
         public BindingBuilder<TContract> FromNew()
         {
-            _factory = () => _container.Create(_concreteType);
+            _factory = (args) => _container.Create(_concreteType, args);
             return this;
         }
 
         public BindingBuilder<TContract> FromInstance(TContract instance)
         {
-            _factory = () => instance;
+            _factory = (args) => instance;
             _ownsInstance = false;
             return this;
         }
 
-        public BindingBuilder<TContract> FromFactory(Func<TContract> factory)
+        public BindingBuilder<TContract> FromFactory(Func<object[], TContract> factory)
         {
-            _factory = () => factory();
+            _factory = (args) => factory(args);
             return this;
         }
 
@@ -69,7 +76,14 @@ namespace Osiris.DI
 
             _container.AddBinding(_contractType, new Binding
             {
-                Factory = _factory ?? (() => _container.Create(_concreteType)),
+                Factory = _factory ?? (args =>
+                {
+                    var finalArgs = args != null && args.Length > 0
+                        ? args
+                        : _bindingArgs;
+
+                    return _container.Create(_concreteType, finalArgs);
+                }),
                 Lifetime = lifetime,
                 OwnsInstance = _ownsInstance
             });

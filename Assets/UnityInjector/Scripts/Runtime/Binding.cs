@@ -4,24 +4,22 @@ namespace Osiris.DI
 {
     internal class Binding : IDisposable
     {
-        public Func<object> Factory;
+        public Func<object[], object> Factory;
         public Lifetime Lifetime;
         public bool OwnsInstance = true;
 
         private object _cachedInstance;
 
-        public object GetInstance()
+        public object GetInstance(object[] args = null)
         {
             switch (Lifetime)
             {
                 case Lifetime.Transient:
-                    return Factory();
+                    return Factory?.Invoke(args) ?? throw new InvalidOperationException();
 
                 case Lifetime.Cached:
-                    return _cachedInstance ??= Factory();
-
                 case Lifetime.Single:
-                    return _cachedInstance ??= Factory();
+                    return _cachedInstance ??= (Factory?.Invoke(args) ?? throw new InvalidOperationException());
 
                 default:
                     throw new ArgumentOutOfRangeException();
