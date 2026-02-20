@@ -20,7 +20,7 @@ Add link to package from repository directly to manifest.json
     "dependencies": {
         // other packages
         // ...
-        "com.osirisgames.eventbroker": "https://github.com/ostrzolekpawel/UnityInjector.git?path=Assets/UnityInjector"
+        "com.osirisgames.dicontainer": "https://github.com/ostrzolekpawel/UnityInjector.git?path=Assets/UnityInjector"
     }
 }
 ```
