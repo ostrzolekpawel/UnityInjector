@@ -9,7 +9,7 @@ There is several options to install this package:
 
 ### Unity Package Manager
 
-Open Unity Package Manager and go to **Add package from git URL...** and paste [https://github.com/ostrzolekpawel/UnityInjector.git?path=Assets/UnityInjector](https://github.com/ostrzolekpawel/UnityInjector.git?path=Assets/UnityInjector)
+Open Unity Package Manager and go to **Add package from git URL...** and paste [https://github.com/ostrzolekpawel/UnityInjector.git?path=Assets/Injector](https://github.com/ostrzolekpawel/UnityInjector.git?path=Assets/Injector)
 
 ### Manifest
 Add link to package from repository directly to manifest.json
@@ -20,7 +20,7 @@ Add link to package from repository directly to manifest.json
     "dependencies": {
         // other packages
         // ...
-        "com.osirisgames.dicontainer": "https://github.com/ostrzolekpawel/UnityInjector.git?path=Assets/UnityInjector"
+        "com.osirisgames.eventbroker": "https://github.com/ostrzolekpawel/UnityInjector.git?path=Assets/Injector"
     }
 }
 ```
