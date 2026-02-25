@@ -10,5 +10,11 @@ namespace Osiris.DI.Demo
             _test.Calc();
             _enemy.Info();
         }
+
+        [Inject]
+        public void Init(INumberGenerator roomNumberGenerator)
+        {
+
+        }
     }
 }
