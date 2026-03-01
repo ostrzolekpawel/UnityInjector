@@ -2,7 +2,7 @@
   "name": "com.osirisgames.dicontainer",
   "displayName": "DI Container",
   "author": { "name": "Osiris" },
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Light DI Container",
   "keywords": [],
   "category": "Tools",
