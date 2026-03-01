@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Osiris.DI
 {
-    public abstract class InjectableMonoBehaviour : MonoBehaviour
+    public abstract class MonoBehaviourInjectable : MonoBehaviour
     {
         protected virtual void Awake()
         {

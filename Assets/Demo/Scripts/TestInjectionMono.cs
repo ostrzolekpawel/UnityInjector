@@ -1,6 +1,6 @@
 namespace Osiris.DI.Demo
 {
-    public class TestInjectionMono : InjectableMonoBehaviour
+    public class TestInjectionMono : MonoBehaviourInjectable
     {
         [Inject] private ITest _test;
         [Inject] private IEnemy _enemy;
