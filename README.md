@@ -111,6 +111,25 @@ container.Bind<GameConfig>().FromInstance(config).AsSingle();
 container.Bind<IEnemy>().FromFactory(args => new Enemy(42)).AsSingle();
 ```
 
+### FromNewPrefab - instantiate a prefab and retrieve a component from it
+
+When resolved, the container calls `Object.Instantiate(prefab)`, retrieves the component of the bound (or concrete) type from the resulting `GameObject`, injects `[Inject]` members on it, and returns it. The scene owns the instance - the container does not destroy it on `Dispose`.
+
+```csharp
+[SerializeField] private GameObject _enemyPrefab;
+
+// Concrete type - one shared prefab instance
+container.Bind<EnemyFacade>().FromNewPrefab(_enemyPrefab).AsSingle();
+
+// Interface binding - To<> names the component type for GetComponent
+container.Bind<IEnemy>().To<EnemyFacade>().FromNewPrefab(_enemyPrefab).AsSingle();
+
+// AsTransient - a new prefab instance is spawned on every resolve
+container.Bind<IEnemy>().To<EnemyFacade>().FromNewPrefab(_enemyPrefab).AsTransient();
+```
+
+> If the component type is not found on the prefab, an `InvalidOperationException` is thrown and the instantiated `GameObject` is immediately destroyed to avoid scene leaks.
+
 ### WithArguments - pass explicit constructor arguments
 
 Constructor parameters that match the provided argument types are filled from the list; remaining parameters are resolved from the container.

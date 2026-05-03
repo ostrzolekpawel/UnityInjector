@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace Osiris.DI
 {
@@ -51,6 +52,31 @@ namespace Osiris.DI
             return this;
         }
 
+        public BindingBuilder<TContract> FromNewPrefab(GameObject prefab)
+        {
+            var concreteType = _concreteType;
+
+            _factory = (args) =>
+            {
+                var go = UnityEngine.Object.Instantiate(prefab);
+                var component = go.GetComponent(concreteType);
+
+                if (component == null)
+                {
+                    UnityEngine.Object.Destroy(go);
+                    throw new InvalidOperationException(
+                        $"FromNewPrefab: component of type '{concreteType.Name}' " +
+                        $"was not found on prefab '{prefab.name}'.");
+                }
+
+                _container.Inject(component);
+                return component;
+            };
+
+            _ownsInstance = false;
+            return this;
+        }
+
         public void AsTransient()
         {
             Register(Lifetime.Transient);
@@ -68,7 +94,7 @@ namespace Osiris.DI
 
         private void Register(Lifetime lifetime)
         {
-            if (_contractType.IsInterface && _concreteType == _contractType)
+            if (_contractType.IsInterface && _concreteType == _contractType && _factory == null)
             {
                 throw new InvalidOperationException(
                     $"Binding interface {_contractType.Name} requires To<TConcrete>()");
