@@ -77,6 +77,19 @@ namespace Osiris.DI
             return this;
         }
 
+        public BindingBuilder<TContract> FromNewPrefab(Component prefabComponent)
+        {
+            _factory = (args) =>
+            {
+                var instance = UnityEngine.Object.Instantiate(prefabComponent);
+                _container.Inject(instance);
+                return instance;
+            };
+
+            _ownsInstance = false;
+            return this;
+        }
+
         public void AsTransient()
         {
             Register(Lifetime.Transient);

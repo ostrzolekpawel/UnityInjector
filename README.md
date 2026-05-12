@@ -113,22 +113,29 @@ container.Bind<IEnemy>().FromFactory(args => new Enemy(42)).AsSingle();
 
 ### FromNewPrefab - instantiate a prefab and retrieve a component from it
 
-When resolved, the container calls `Object.Instantiate(prefab)`, retrieves the component of the bound (or concrete) type from the resulting `GameObject`, injects `[Inject]` members on it, and returns it. The scene owns the instance - the container does not destroy it on `Dispose`.
+When resolved, the container instantiates the prefab, injects `[Inject]` members on the component, and returns it. The scene owns the instance - the container does not destroy it on `Dispose`.
+
+**Passing a `GameObject`** - the container calls `GetComponent` to find the bound (or `To<>`) type:
 
 ```csharp
 [SerializeField] private GameObject _enemyPrefab;
 
-// Concrete type - one shared prefab instance
-container.Bind<EnemyFacade>().FromNewPrefab(_enemyPrefab).AsSingle();
-
-// Interface binding - To<> names the component type for GetComponent
-container.Bind<IEnemy>().To<EnemyFacade>().FromNewPrefab(_enemyPrefab).AsSingle();
-
-// AsTransient - a new prefab instance is spawned on every resolve
-container.Bind<IEnemy>().To<EnemyFacade>().FromNewPrefab(_enemyPrefab).AsTransient();
+container.Bind<IEnemy>().To<Enemy>().FromNewPrefab(_enemyPrefab).AsSingle();
+container.Bind<IEnemy>().To<Enemy>().FromNewPrefab(_enemyPrefab).AsTransient();
 ```
 
 > If the component type is not found on the prefab, an `InvalidOperationException` is thrown and the instantiated `GameObject` is immediately destroyed to avoid scene leaks.
+
+**Passing a component reference** - more convenient when you have a direct reference to the component on the prefab; no `To<>()` needed:
+
+```csharp
+[SerializeField] private Enemy _enemyPrefab;
+
+container.Bind<IEnemy>().FromNewPrefab(_enemyPrefab).AsSingle();
+container.Bind<Enemy>().FromNewPrefab(_enemyPrefab).AsTransient();
+```
+
+Unity's `Object.Instantiate(component)` clones the whole `GameObject` and returns the same component type on the new instance, so no `GetComponent` call is needed.
 
 ### WithArguments - pass explicit constructor arguments
 
