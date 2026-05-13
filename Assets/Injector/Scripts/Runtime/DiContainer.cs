@@ -8,6 +8,7 @@ namespace Osiris.DI
     public class DiContainer : IDisposable
     {
         private readonly Dictionary<Type, Binding> _bindings = new Dictionary<Type, Binding>();
+        private readonly List<Type> _nonLazyTypes = new List<Type>();
         private readonly DiContainer _fallback;
         private bool _isDisposed;
 
@@ -24,6 +25,17 @@ namespace Osiris.DI
         internal void AddBinding(Type type, Binding binding)
         {
             _bindings[type] = binding;
+        }
+
+        internal void MarkNonLazy(Type type)
+        {
+            _nonLazyTypes.Add(type);
+        }
+
+        public void ResolveNonLazy()
+        {
+            foreach (var type in _nonLazyTypes)
+                Resolve(type);
         }
 
         public T Resolve<T>()

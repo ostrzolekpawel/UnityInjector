@@ -76,14 +76,16 @@ public class GameInstaller : MonoInstaller
 
 | Method | Behaviour |
 |--------|-----------|
-| `AsSingle()` | One shared instance for the lifetime of the container |
+| `AsSingle()` | One shared instance for the lifetime of the container (lazy — created on first resolve) |
 | `AsCached()` | One instance created on first resolve, reused afterwards |
 | `AsTransient()` | A new instance is created on every resolve |
+| `NonLazy()` | Like `AsSingle()`, but the instance is created immediately after all installers run |
 
 ```csharp
-container.Bind<IService>().To<Service>().AsSingle();    // singleton
+container.Bind<IService>().To<Service>().AsSingle();    // lazy singleton
 container.Bind<IService>().To<Service>().AsCached();    // lazy singleton
 container.Bind<IService>().To<Service>().AsTransient(); // new each time
+container.Bind<IService>().To<Service>().NonLazy();     // singleton, created at scene start
 ```
 
 ---
@@ -136,6 +138,24 @@ container.Bind<Enemy>().FromNewPrefab(_enemyPrefab).AsTransient();
 ```
 
 Unity's `Object.Instantiate(component)` clones the whole `GameObject` and returns the same component type on the new instance, so no `GetComponent` call is needed.
+
+### OnInstantiated - run a callback after the instance is created
+
+Called after the instance is constructed and its `[Inject]` members are populated. Works with all binding sources.
+
+```csharp
+// Hide the prefab immediately after instantiation
+container.Bind<IEnemy>().To<Enemy>()
+    .FromNewPrefab(_enemyPrefab)
+    .OnInstantiated(e => e.gameObject.SetActive(false))
+    .NonLazy();
+
+// Set parent transform
+container.Bind<IEnemy>().To<Enemy>()
+    .FromNewPrefab(_enemyPrefab)
+    .OnInstantiated(e => e.transform.SetParent(_spawnRoot))
+    .AsSingle();
+```
 
 ### WithArguments - pass explicit constructor arguments
 

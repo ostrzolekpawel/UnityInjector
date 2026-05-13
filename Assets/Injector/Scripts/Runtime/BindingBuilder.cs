@@ -12,6 +12,7 @@ namespace Osiris.DI
         private Func<object[], object> _factory;
         private object[] _bindingArgs;
         private bool _ownsInstance = true;
+        private Action<TContract> _onInstantiated;
 
         internal BindingBuilder(DiContainer container)
         {
@@ -90,6 +91,12 @@ namespace Osiris.DI
             return this;
         }
 
+        public BindingBuilder<TContract> OnInstantiated(Action<TContract> callback)
+        {
+            _onInstantiated = callback;
+            return this;
+        }
+
         public void AsTransient()
         {
             Register(Lifetime.Transient);
@@ -105,6 +112,12 @@ namespace Osiris.DI
             Register(Lifetime.Single);
         }
 
+        public void NonLazy()
+        {
+            Register(Lifetime.Single);
+            _container.MarkNonLazy(_contractType);
+        }
+
         private void Register(Lifetime lifetime)
         {
             if (_contractType.IsInterface && _concreteType == _contractType && _factory == null)
@@ -113,16 +126,18 @@ namespace Osiris.DI
                     $"Binding interface {_contractType.Name} requires To<TConcrete>()");
             }
 
+            Func<object[], object> rawFactory = _factory ?? (args =>
+            {
+                var finalArgs = args != null && args.Length > 0 ? args : _bindingArgs;
+                return _container.Create(_concreteType, finalArgs);
+            });
+
+            var onInstantiated = _onInstantiated;
             _container.AddBinding(_contractType, new Binding
             {
-                Factory = _factory ?? (args =>
-                {
-                    var finalArgs = args != null && args.Length > 0
-                        ? args
-                        : _bindingArgs;
-
-                    return _container.Create(_concreteType, finalArgs);
-                }),
+                Factory = onInstantiated != null
+                    ? (args) => { var i = rawFactory(args); onInstantiated((TContract)i); return i; }
+                    : rawFactory,
                 Lifetime = lifetime,
                 OwnsInstance = _ownsInstance
             });

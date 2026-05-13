@@ -14,6 +14,7 @@ namespace Osiris.DI
         {
             Container = new DiContainer(AppContext.Container);
             Install(Container);
+            Container.ResolveNonLazy();
 
             ContextRegistry.Register(this, gameObject.scene);
         }

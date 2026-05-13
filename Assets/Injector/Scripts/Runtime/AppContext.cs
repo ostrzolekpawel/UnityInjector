@@ -13,6 +13,7 @@ namespace Osiris.DI
         {
             Container = new DiContainer();
             Install(Container);
+            Container.ResolveNonLazy();
         }
 
         public void Install(DiContainer container)
